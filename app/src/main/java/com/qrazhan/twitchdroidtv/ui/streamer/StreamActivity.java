@@ -13,9 +13,9 @@ import android.webkit.WebViewClient;
 import com.qrazhan.twitchdroidtv.R;
 import com.qrazhan.twitchdroidtv.model.Stream;
 
-public class PlayerActivity extends Activity{
+public class StreamActivity extends Activity{
 
-    private static final String TAG = "PlayerActivity";
+    private static final String TAG = "StreamActivity";
 
     WebView player;
 

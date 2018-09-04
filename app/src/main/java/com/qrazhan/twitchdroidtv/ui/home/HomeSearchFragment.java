@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -22,44 +21,31 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
-import com.qrazhan.twitchdroidtv.data.TwitchService;
 import com.qrazhan.twitchdroidtv.presenter.CardPresenter;
 import com.qrazhan.twitchdroidtv.data.PicassoBackgroundManagerTarget;
-import com.qrazhan.twitchdroidtv.ui.streamer.PlayerActivity;
+import com.qrazhan.twitchdroidtv.ui.streamer.StreamActivity;
 import com.qrazhan.twitchdroidtv.R;
 import com.qrazhan.twitchdroidtv.ui.search.SearchActivity;
-import com.qrazhan.twitchdroidtv.ui.search.SearchResultsActivity;
 import com.qrazhan.twitchdroidtv.model.Stream;
 import com.qrazhan.twitchdroidtv.model.StreamList;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 
+public class HomeSearchFragment extends BrowseFragment {
+    private static final String TAG = "HomeSearchFragment";
 
-public class MainFragment extends BrowseFragment {
-    private static final String TAG = "MainFragment";
-
-    private static final int NUM_ROWS = 2;
-    private static final int NUM_COLS = 10;
+    private static final int NUM_ROWS = 6;
+    private static final int NUM_COLS = 15;
 
     private ArrayObjectAdapter mRowsAdapter;
     private Drawable mDefaultBackground;
@@ -68,7 +54,8 @@ public class MainFragment extends BrowseFragment {
     private Timer mBackgroundTimer;
     private final Handler mHandler = new Handler();
     private URI mBackgroundURI;
-    Stream mStream;
+    String url;
+    String title;
     CardPresenter mCardPresenter;
 
     @Override
@@ -76,9 +63,15 @@ public class MainFragment extends BrowseFragment {
         Log.i(TAG, "onCreate");
         super.onActivityCreated(savedInstanceState);
 
+        url = getActivity().getIntent().getStringExtra("twitch-api-url");
+        title = getActivity().getIntent().getStringExtra("activity-title");
+        System.out.println(url);
+
         prepareBackgroundManager();
 
         setupUIElements();
+
+        updateBackground((URI)getActivity().getIntent().getSerializableExtra("background-url"));
 
         loadRows();
 
@@ -86,71 +79,27 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadRows() {
-        List<Stream> games = new ArrayList<Stream>();
+
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         mCardPresenter = new CardPresenter();
 
-        final ArrayObjectAdapter gamesRowAdapter = new ArrayObjectAdapter(mCardPresenter);
         final ArrayObjectAdapter featuredRowAdapter = new ArrayObjectAdapter(mCardPresenter);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.twitch.tv/kraken/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-
-        TwitchService twitch = retrofit.create(TwitchService.class);
-
-        twitch.getTopStreams()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(res -> {
-                            JsonArray top = res.getAsJsonArray("top");
-                            for (int i = 0; i < top.size(); i++) {
-                                JsonObject game = top.get(i).getAsJsonObject().get("game").getAsJsonObject();
-                                final String gameName = game.get("name").getAsString();
-                                gamesRowAdapter.add(StreamList.buildStreamInfo("category", gameName, game.get("box").getAsJsonObject().get("template").getAsString(), "studio", "tempurl",
-                                        game.get("box").getAsJsonObject().get("large").getAsString(),
-                                        game.get("box").getAsJsonObject().get("large").getAsString(), true));
-                            }
-                        },
-                        err -> Toast.makeText(getContext(), err.toString(), Toast.LENGTH_SHORT).show()
-                );
-
-        twitch.getFeaturedStreams()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(res -> {
-                            JsonArray featured = res.getAsJsonArray("featured");
-                            for (int i = 0; i < featured.size(); i++) {
-                                JsonObject stream = featured.get(i).getAsJsonObject().get("stream").getAsJsonObject();
-                                JsonObject channel = stream.get("channel").getAsJsonObject();
-                                featuredRowAdapter.add(StreamList.buildStreamInfo("category", channel.get("status").getAsString(), channel.get("name").getAsString(),
-                                        channel.get("display_name").getAsString().trim()+" playing "+channel.get("game").getAsString(),
-                                        "http://twitch.tv/" + channel.get("name").getAsString() + "/hls",
-                                        stream.get("preview").getAsJsonObject().get("large").getAsString(),
-                                        stream.get("preview").getAsJsonObject().get("large").getAsString(), false));
-
-                            }
-                        },
-                        err -> Toast.makeText(getContext(), err.toString(), Toast.LENGTH_SHORT).show()
-                );
 
         Ion.with(getActivity().getApplicationContext())
-                .load("https://api.twitch.tv/kraken/streams/featured")
+                .load(url)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
                         // do stuff with the result or error
-                        if(result != null) {
-                            JsonArray featured = result.getAsJsonArray("featured");
-                            for (int i = 0; i < featured.size(); i++) {
-                                JsonObject stream = featured.get(i).getAsJsonObject().get("stream").getAsJsonObject();
+                        if (result != null) {
+                            System.out.println(result);
+                            JsonArray streams = result.getAsJsonArray("streams");
+                            for (int i = 0; i < streams.size(); i++) {
+                                JsonObject stream = streams.get(i).getAsJsonObject();
                                 JsonObject channel = stream.get("channel").getAsJsonObject();
-                                featuredRowAdapter.add(StreamList.buildStreamInfo("category", channel.get("status").getAsString(), channel.get("name").getAsString(),
-                                        channel.get("display_name").getAsString().trim()+" playing "+channel.get("game").getAsString(),
-                                        "http://twitch.tv/" + channel.get("name").getAsString() + "/hls",
+                                featuredRowAdapter.add(StreamList.buildStreamInfo("category", channel.get("status").getAsString(), channel.get("name").getAsString(), channel.get("display_name").getAsString(), "http://twitch.tv/" + channel.get("name").getAsString() + "/hls",
                                         stream.get("preview").getAsJsonObject().get("large").getAsString(),
                                         stream.get("preview").getAsJsonObject().get("large").getAsString(), false));
 
@@ -159,11 +108,8 @@ public class MainFragment extends BrowseFragment {
                     }
                 });
 
-        mRowsAdapter.add(new ListRow(new HeaderItem(0, "Featured Streams"), featuredRowAdapter));
-        mRowsAdapter.add(new ListRow(new HeaderItem(0, "Top Games"), gamesRowAdapter));
-
+        mRowsAdapter.add(new ListRow( featuredRowAdapter));
         setAdapter(mRowsAdapter);
-
     }
 
     private void prepareBackgroundManager() {
@@ -172,13 +118,7 @@ public class MainFragment extends BrowseFragment {
         backgroundManager.attach(getActivity().getWindow());
         mBackgroundTarget = new PicassoBackgroundManagerTarget(backgroundManager);
 
-        mDefaultBackground = getResources().getDrawable(R.drawable.backgroundart);
-        try {
-            mBackgroundURI = new URI("http://ttv-backgroundart.s3.amazonaws.com/404_backgroundart.jpg");
-            startBackgroundTimer();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        mDefaultBackground = getResources().getDrawable(R.drawable.default_background);
 
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
@@ -187,7 +127,7 @@ public class MainFragment extends BrowseFragment {
     private void setupUIElements() {
         // setBadgeDrawable(getActivity().getResources().getDrawable(
         // R.drawable.videos_by_google_banner));
-        setTitle(getString(R.string.browse_title)); // Badge, when set, takes precedent
+        setTitle(title); // Badge, when set, takes precedent
         // over title
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
@@ -212,11 +152,8 @@ public class MainFragment extends BrowseFragment {
     protected OnItemViewSelectedListener getDefaultItemSelectedListener() {
         return new OnItemViewSelectedListener() {
             @Override
-            public void onItemSelected(Presenter.ViewHolder viewHolder, Object item, RowPresenter.ViewHolder viewHolder1, Row row) {
-//                if (item instanceof Stream) {
-//                    mBackgroundURI = ((Stream) item).getBackgroundImageURI();
-//                    startBackgroundTimer();
-//                }
+            public void onItemSelected(Presenter.ViewHolder viewHolder, Object o, RowPresenter.ViewHolder viewHolder1, Row row) {
+
             }
         };
     }
@@ -226,29 +163,11 @@ public class MainFragment extends BrowseFragment {
             @Override
             public void onItemClicked(Presenter.ViewHolder viewHolder, Object item, RowPresenter.ViewHolder viewHolder1, Row row) {
                 if (item instanceof Stream) {
-                    Stream stream = (Stream) item;
-                    if(!stream.getVertical()) {
-                        Log.d(TAG, "Item: " + item.toString());
-                        Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                        intent.putExtra(getString(R.string.movie), stream);
-                        startActivity(intent);
-                    } else {
-                        Intent intent = new Intent(getActivity(), SearchResultsActivity.class);
-                        intent.putExtra("twitch-api-url", "https://api.twitch.tv/kraken/streams?game=" + stream.getTitle().replace(" ", "+"));
-                        try {
-                            URI image = new URI(stream.getDescription().replace("{width}", "544").replace("{height}", "760"));
-                            intent.putExtra("background-url", image);
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
-                        intent.putExtra("activity-title", stream.getTitle());
-                        System.out.println(stream.getDescription().replace("{width}", "544").replace("{height}", "760"));
-                        startActivity(intent);
-                    }
-                }
-                else if (item instanceof String) {
-                    Toast.makeText(getActivity(), (String) item, Toast.LENGTH_SHORT)
-                            .show();
+                    Stream movie = (Stream) item;
+                    Log.d(TAG, "Item: " + item.toString());
+                    Intent intent = new Intent(getActivity(), StreamActivity.class);
+                    intent.putExtra(getString(R.string.movie), movie);
+                    startActivity(intent);
                 }
             }
         };

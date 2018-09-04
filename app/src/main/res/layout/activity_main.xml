@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_browse_fragment"
-    android:name="com.qrazhan.twitchdroidtv.ui.home.MainFragment"
+    android:name="com.qrazhan.twitchdroidtv.ui.home.HomeFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.MainActivity"
+    tools:context=".ui.home.HomeActivity"
     tools:deviceIds="tv"
     tools:ignore="MergeRootFrame" />

@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 import com.qrazhan.twitchdroidtv.presenter.CardPresenter;
 import com.qrazhan.twitchdroidtv.data.PicassoBackgroundManagerTarget;
-import com.qrazhan.twitchdroidtv.ui.streamer.PlayerActivity;
+import com.qrazhan.twitchdroidtv.ui.streamer.StreamActivity;
 import com.qrazhan.twitchdroidtv.R;
 import com.qrazhan.twitchdroidtv.model.Stream;
 import com.qrazhan.twitchdroidtv.model.StreamList;
@@ -120,7 +120,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                 @Override
                 public void onActionClicked(Action action) {
                     if (action.getId() == ACTION_WATCH_TRAILER) {
-                        Intent intent = new Intent(getActivity(), PlayerActivity.class);
+                        Intent intent = new Intent(getActivity(), StreamActivity.class);
                         intent.putExtra(getResources().getString(R.string.movie), selectedStream);
                         intent.putExtra(getResources().getString(R.string.should_start), true);
                         startActivity(intent);
