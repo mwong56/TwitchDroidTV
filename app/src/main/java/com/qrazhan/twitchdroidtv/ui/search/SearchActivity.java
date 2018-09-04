@@ -1,9 +1,9 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.ui.search;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+
+import com.qrazhan.twitchdroidtv.R;
 
 
 public class SearchActivity extends Activity {

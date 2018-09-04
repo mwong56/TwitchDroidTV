@@ -1,4 +1,4 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.ui.channels;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +25,13 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.qrazhan.twitchdroidtv.presenter.CardPresenter;
+import com.qrazhan.twitchdroidtv.data.PicassoBackgroundManagerTarget;
+import com.qrazhan.twitchdroidtv.ui.streamer.PlayerActivity;
+import com.qrazhan.twitchdroidtv.R;
+import com.qrazhan.twitchdroidtv.model.Stream;
+import com.qrazhan.twitchdroidtv.model.StreamList;
+import com.qrazhan.twitchdroidtv.presenter.DetailsDescriptionPresenter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 

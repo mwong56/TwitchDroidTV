@@ -1,13 +1,7 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.model;
 
-import android.content.Context;
+import com.qrazhan.twitchdroidtv.model.Stream;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public final class StreamList {

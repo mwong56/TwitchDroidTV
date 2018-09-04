@@ -1,14 +1,7 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.ui.streamer;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -16,15 +9,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout.LayoutParams;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.VideoView;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import com.qrazhan.twitchdroidtv.R;
+import com.qrazhan.twitchdroidtv.model.Stream;
 
 public class PlayerActivity extends Activity{
 

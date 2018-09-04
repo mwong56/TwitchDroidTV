@@ -1,7 +1,9 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.ui.home;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.qrazhan.twitchdroidtv.R;
 
 public class MainActivity extends Activity {
 

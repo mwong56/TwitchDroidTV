@@ -1,4 +1,4 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.data;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;

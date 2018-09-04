@@ -1,4 +1,4 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.model;
 
 import java.io.Serializable;
 import java.net.URI;

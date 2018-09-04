@@ -1,4 +1,4 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.presenter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,12 +15,12 @@ import com.squareup.picasso.Target;
 
 import java.net.URI;
 
-public class CardPresenter extends Presenter {
+public class SearchCardPresenter extends Presenter {
     private static final String TAG = "CardPresenter";
 
     private static Context mContext;
-    private static int CARD_WIDTH = 640;
-    private static int CARD_HEIGHT = 400;
+    private static int CARD_WIDTH = 480;
+    private static int CARD_HEIGHT = 300;
     private static int CARD_WIDTH_VERT = 272;
     private static int CARD_HEIGHT_VERT = 380;
 

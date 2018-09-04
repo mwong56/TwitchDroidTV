@@ -1,6 +1,8 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.presenter;
 
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
+
+import com.qrazhan.twitchdroidtv.model.Stream;
 
 public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPresenter {
     @Override

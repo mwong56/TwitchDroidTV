@@ -1,4 +1,4 @@
-package com.qrazhan.twitchdroidtv;
+package com.qrazhan.twitchdroidtv.ui.search;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +20,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.qrazhan.twitchdroidtv.ui.streamer.PlayerActivity;
+import com.qrazhan.twitchdroidtv.R;
+import com.qrazhan.twitchdroidtv.model.Stream;
+import com.qrazhan.twitchdroidtv.model.StreamList;
+import com.qrazhan.twitchdroidtv.presenter.SearchCardPresenter;
 
 /**
  * Created by prashan on 10/4/14.
