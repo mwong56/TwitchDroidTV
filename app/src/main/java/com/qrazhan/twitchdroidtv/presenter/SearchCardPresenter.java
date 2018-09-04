@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.qrazhan.twitchdroidtv.R;
+import com.qrazhan.twitchdroidtv.model.Stream;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 

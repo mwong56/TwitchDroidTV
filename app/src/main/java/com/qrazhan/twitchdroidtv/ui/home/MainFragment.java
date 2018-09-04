@@ -24,10 +24,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.qrazhan.twitchdroidtv.data.TwitchService;
 import com.qrazhan.twitchdroidtv.presenter.CardPresenter;
 import com.qrazhan.twitchdroidtv.data.PicassoBackgroundManagerTarget;
 import com.qrazhan.twitchdroidtv.ui.streamer.PlayerActivity;
@@ -45,6 +47,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class MainFragment extends BrowseFragment {
@@ -85,15 +93,19 @@ public class MainFragment extends BrowseFragment {
         final ArrayObjectAdapter gamesRowAdapter = new ArrayObjectAdapter(mCardPresenter);
         final ArrayObjectAdapter featuredRowAdapter = new ArrayObjectAdapter(mCardPresenter);
 
-        Ion.with(getActivity().getApplicationContext())
-                .load("https://api.twitch.tv/kraken/games/top")
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-                        // do stuff with the result or error
-                        if(result != null) {
-                            JsonArray top = result.getAsJsonArray("top");
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.twitch.tv/kraken/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build();
+
+        TwitchService twitch = retrofit.create(TwitchService.class);
+
+        twitch.getTopStreams()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(res -> {
+                            JsonArray top = res.getAsJsonArray("top");
                             for (int i = 0; i < top.size(); i++) {
                                 JsonObject game = top.get(i).getAsJsonObject().get("game").getAsJsonObject();
                                 final String gameName = game.get("name").getAsString();
@@ -101,9 +113,28 @@ public class MainFragment extends BrowseFragment {
                                         game.get("box").getAsJsonObject().get("large").getAsString(),
                                         game.get("box").getAsJsonObject().get("large").getAsString(), true));
                             }
-                        }
-                    }
-                });
+                        },
+                        err -> Toast.makeText(getContext(), err.toString(), Toast.LENGTH_SHORT).show()
+                );
+
+        twitch.getFeaturedStreams()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(res -> {
+                            JsonArray featured = res.getAsJsonArray("featured");
+                            for (int i = 0; i < featured.size(); i++) {
+                                JsonObject stream = featured.get(i).getAsJsonObject().get("stream").getAsJsonObject();
+                                JsonObject channel = stream.get("channel").getAsJsonObject();
+                                featuredRowAdapter.add(StreamList.buildStreamInfo("category", channel.get("status").getAsString(), channel.get("name").getAsString(),
+                                        channel.get("display_name").getAsString().trim()+" playing "+channel.get("game").getAsString(),
+                                        "http://twitch.tv/" + channel.get("name").getAsString() + "/hls",
+                                        stream.get("preview").getAsJsonObject().get("large").getAsString(),
+                                        stream.get("preview").getAsJsonObject().get("large").getAsString(), false));
+
+                            }
+                        },
+                        err -> Toast.makeText(getContext(), err.toString(), Toast.LENGTH_SHORT).show()
+                );
 
         Ion.with(getActivity().getApplicationContext())
                 .load("https://api.twitch.tv/kraken/streams/featured")
